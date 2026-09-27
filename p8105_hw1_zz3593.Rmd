@@ -1,0 +1,85 @@
+---
+title: "Homework 1"
+author: "Ziang Zhang"
+date: "2026-09-26"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+
+The `penguins` dataset contains measurements of Adelie, Chinstrap, and Gentoo penguins from the Palmer Archipelago. Important variables include `species` (Adelie, Chinstrap, or Gentoo), `island` (Biscoe, Dream, or Torgersen), `bill_length_mm`, `bill_depth_mm`, `flipper_length_mm`, and `body_mass_g`. The `sex` variable records female or male.
+
+```{r load-penguins, message=FALSE}
+library(dplyr)
+library(ggplot2)
+library(palmerpenguins)
+
+data("penguins", package = "palmerpenguins")
+```
+
+The dataset has `r nrow(penguins)` rows and `r ncol(penguins)` columns. The mean flipper length is `r round(mean(penguins$flipper_length_mm, na.rm = TRUE), 2)` mm.
+
+```{r penguin-scatterplot}
+penguin_scatterplot <-
+  ggplot(
+    penguins,
+    aes(x = bill_length_mm, y = flipper_length_mm, color = species)
+  ) +
+  geom_point(na.rm = TRUE)
+
+penguin_scatterplot
+
+ggsave(
+  filename = "penguin_scatterplot.png",
+  plot = penguin_scatterplot,
+  width = 6,
+  height = 4
+)
+```
+
+## Problem 2
+
+```{r create-data}
+set.seed(123)
+
+normal_sample <- rnorm(10)
+
+homework_data <-
+  data.frame(
+    normal_sample = normal_sample,
+    is_positive = normal_sample > 0,
+    character_variable = c(
+      "red", "blue", "green", "red", "blue",
+      "green", "red", "blue", "green", "red"
+    ),
+    factor_variable = factor(
+      c(
+        "low", "medium", "high", "low", "medium",
+        "high", "low", "medium", "high", "low"
+      )
+    )
+  )
+
+homework_data
+```
+
+I used `pull()` to extract each variable from the data frame before calculating its mean. The numeric variable has a numeric mean. R also calculates a mean for the logical variable by treating `TRUE` as 1 and `FALSE` as 0; this mean is the proportion of values that are `TRUE`. The character and factor variables do not have meaningful arithmetic means, so their calls to `mean()` return `NA` with a warning.
+
+```{r calculate-means}
+mean(pull(homework_data, normal_sample))
+mean(pull(homework_data, is_positive))
+mean(pull(homework_data, character_variable))
+mean(pull(homework_data, factor_variable))
+```
+
+Converting a logical vector to numeric maps `FALSE` to 0 and `TRUE` to 1. Converting these character values produces `NA` because they are not numeric strings. Converting a factor to numeric returns its internal level codes rather than the labels. This helps explain why the logical mean can be interpreted as a proportion, while character and factor means are not meaningful.
+
+```{r numeric-conversions, results="hide", warning=FALSE}
+as.numeric(pull(homework_data, is_positive))
+as.numeric(pull(homework_data, character_variable))
+as.numeric(pull(homework_data, factor_variable))
+```
